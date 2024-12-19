@@ -61,29 +61,41 @@ class AppCubit extends Cubit<AppState>{
     );
   }
 
-  void getDataFromDatabase({required Database db}) async{
-    newTasks = [];
-    doneTasks = [];
-    archivedTasks = [];
+  // void getDataFromDatabase({required Database db}) async{
+  //   newTasks = [];
+  //   doneTasks = [];
+  //   archivedTasks = [];
+  //   await db.rawQuery('SELECT * FROM tasks').then((value) {
+  //     value.forEach(
+  //       (element) {
+  //         switch(element['status']){
+  //           case 'new':
+  //             newTasks.add(element);
+  //             break;
+  //           case 'done':
+  //             doneTasks.add(element);
+  //             break;
+  //           case 'archived':
+  //             archivedTasks.add(element);
+  //             break;
+  //         }
+  //       },
+  //     );
+  //     emit(AppGetDatabaseState());
+  //   },);
+  // }
+
+  void getDataFromDatabase({required Database db}) async {
     await db.rawQuery('SELECT * FROM tasks').then((value) {
-      value.forEach(
-        (element) {
-          switch(element['status']){
-            case 'new':
-              newTasks.add(element);
-              break;
-            case 'done':
-              doneTasks.add(element);
-              break;
-            case 'archived':
-              archivedTasks.add(element);
-              break;
-          }
-        },
-      );
+      // تعيين قوائم جديدة لكل حالة
+      newTasks = value.where((element) => element['status'] == 'new').toList();
+      doneTasks = value.where((element) => element['status'] == 'done').toList();
+      archivedTasks = value.where((element) => element['status'] == 'archived').toList();
+
       emit(AppGetDatabaseState());
-    },);
+    });
   }
+
 
   void updateDataBase({required String status,required int id}) async{
     await database.rawUpdate(
